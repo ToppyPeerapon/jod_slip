@@ -200,4 +200,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryOtherIncome => 'Other';
+
+  @override
+  String get scanLibrary => 'Find slips in all photos';
+
+  @override
+  String get scanLibraryHint =>
+      'Looks through your photos and picks out the slips';
+
+  @override
+  String get libraryRangeTitle => 'Which photos to search?';
+
+  @override
+  String rangeSinceLast(String date) {
+    return 'Since last search ($date)';
+  }
+
+  @override
+  String get rangeLastMonth => 'Last month';
+
+  @override
+  String get rangeLast3Months => 'Last 3 months';
+
+  @override
+  String get rangeAll => 'All photos (may take a while)';
+
+  @override
+  String searchingProgress(int current, int total, int found) {
+    return 'Searching $current/$total photos · found $found';
+  }
+
+  @override
+  String skippedSaved(int count) {
+    return 'Skipped $count slips already saved';
+  }
+
+  @override
+  String get noNewSlips => 'No new slips found';
+
+  @override
+  String get photoAccessTitle => 'No access to Photos';
+
+  @override
+  String get photoAccessBody =>
+      'Open Settings and allow JodSlip to access all photos to search for slips.';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get photoAccessLimited =>
+      'Only the photos you allowed will be searched';
 }

@@ -31,9 +31,8 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             tooltip: l10n.settings,
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
-            ),
+            onPressed: () =>
+                Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
           ),
         ],
       ),
@@ -46,16 +45,18 @@ class HomeScreen extends ConsumerWidget {
         onRefresh: () => ref.refresh(monthTransactionsProvider.future),
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _MonthSwitcher(month: month, format: format)),
+            SliverToBoxAdapter(
+              child: _MonthSwitcher(month: month, format: format),
+            ),
             ...switch (transactions) {
               // Matching on `value` keeps the previous list visible while refreshing.
               AsyncValue(:final value?) => _content(context, ref, value, format),
               AsyncValue(:final error?) => [
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(child: Text('${l10n.errorGeneric}\n$error', textAlign: TextAlign.center)),
-                  ),
-                ],
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: Text('${l10n.errorGeneric}\n$error', textAlign: TextAlign.center)),
+                ),
+              ],
               _ => [const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))],
             },
           ],
@@ -77,14 +78,16 @@ class HomeScreen extends ConsumerWidget {
       summary,
       const SliverToBoxAdapter(child: SizedBox(height: 8)),
       for (final MapEntry(key: day, value: dayItems) in byDay.entries)
-        SliverList.list(children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-            child: Text(format.dayHeader(day), style: Theme.of(context).textTheme.labelLarge),
-          ),
-          for (final tx in dayItems)
-            TransactionTile(transaction: tx, format: format, onTap: () => _edit(context, ref, tx)),
-        ]),
+        SliverList.list(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Text(format.dayHeader(day), style: Theme.of(context).textTheme.labelLarge),
+            ),
+            for (final tx in dayItems)
+              TransactionTile(transaction: tx, format: format, onTap: () => _edit(context, ref, tx)),
+          ],
+        ),
       const SliverToBoxAdapter(child: SizedBox(height: 96)),
     ];
   }
@@ -106,9 +109,7 @@ class HomeScreen extends ConsumerWidget {
       }
     } catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).errorGeneric)),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).errorGeneric)));
       }
     }
     ref.invalidate(monthTransactionsProvider);
@@ -129,11 +130,7 @@ class _MonthSwitcher extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       child: Row(
         children: [
-          IconButton(
-            tooltip: l10n.previousMonth,
-            icon: const Icon(Icons.chevron_left),
-            onPressed: notifier.previous,
-          ),
+          IconButton(tooltip: l10n.previousMonth, icon: const Icon(Icons.chevron_left), onPressed: notifier.previous),
           Expanded(
             child: Text(
               format.monthYear(month),
@@ -141,11 +138,7 @@ class _MonthSwitcher extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-          IconButton(
-            tooltip: l10n.nextMonth,
-            icon: const Icon(Icons.chevron_right),
-            onPressed: notifier.next,
-          ),
+          IconButton(tooltip: l10n.nextMonth, icon: const Icon(Icons.chevron_right), onPressed: notifier.next),
         ],
       ),
     );

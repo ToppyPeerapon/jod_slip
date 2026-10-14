@@ -24,17 +24,29 @@
   "scanningProgress": "กำลังอ่านสลิป {current}/{total}",
   "@scanningProgress": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "saveAll": "บันทึก {count} รายการ",
   "@saveAll": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "savedCount": "บันทึกแล้ว {count} รายการ",
   "@savedCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "statusDuplicate": "สลิปนี้ถูกบันทึกไว้แล้ว",
   "statusNeedsAmount": "อ่านจำนวนเงินไม่ได้ แตะเพื่อกรอก",
@@ -72,5 +84,46 @@
   "categoryTransferIn": "รับโอน",
   "categorySales": "ขายของ",
   "categoryInvestment": "การลงทุน",
-  "categoryOtherIncome": "อื่นๆ"
+  "categoryOtherIncome": "อื่นๆ",
+  "scanLibrary": "ค้นหาสลิปจากรูปทั้งหมด",
+  "scanLibraryHint": "ให้แอปไล่ดูรูปในเครื่อง แล้วเลือกเฉพาะสลิปมาให้",
+  "libraryRangeTitle": "ค้นหาจากรูปช่วงไหน",
+  "rangeSinceLast": "ตั้งแต่ค้นหาครั้งล่าสุด ({date})",
+  "@rangeSinceLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rangeLastMonth": "1 เดือนล่าสุด",
+  "rangeLast3Months": "3 เดือนล่าสุด",
+  "rangeAll": "รูปทั้งหมด (อาจใช้เวลานาน)",
+  "searchingProgress": "กำลังค้นหาสลิป {current}/{total} รูป · เจอ {found} ใบ",
+  "@searchingProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "found": {
+        "type": "int"
+      }
+    }
+  },
+  "skippedSaved": "ข้ามสลิปที่บันทึกไว้แล้ว {count} ใบ",
+  "@skippedSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noNewSlips": "ไม่เจอสลิปใหม่",
+  "photoAccessTitle": "ยังไม่ได้รับอนุญาตให้เข้าถึงรูปภาพ",
+  "photoAccessBody": "เปิดการตั้งค่า แล้วอนุญาตให้จดสลิปเข้าถึงรูปภาพทั้งหมด เพื่อค้นหาสลิปในเครื่อง",
+  "openSettings": "เปิดการตั้งค่า",
+  "photoAccessLimited": "อนุญาตไว้บางรูป จะค้นหาเฉพาะรูปที่อนุญาต"
 }

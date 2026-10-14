@@ -23,48 +23,76 @@ class SlipReviewScreen extends ConsumerWidget {
     final state = ref.watch(slipImportControllerProvider);
     final controller = ref.read(slipImportControllerProvider.notifier);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.reviewSlips),
-        bottom: state.isScanning
-            ? PreferredSize(
-                preferredSize: const Size.fromHeight(28),
-                child: Column(
+    final isLibrary = state.mode == ScanMode.library;
+    final progress = isLibrary
+        ? l10n.searchingProgress((state.scanned + 1).clamp(1, state.total), state.total, state.drafts.length)
+        : l10n.scanningProgress(state.scanned + 1, state.total);
+
+    return PopScope(
+      // Leaving the screen stops a library search; picked images are few.
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop && isLibrary && state.isScanning) controller.cancelScan();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.reviewSlips),
+          bottom: state.isScanning
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(28),
+                  child: Column(
+                    children: [
+                      Text(progress),
+                      const SizedBox(height: 4),
+                      LinearProgressIndicator(value: state.total == 0 ? null : state.scanned / state.total),
+                    ],
+                  ),
+                )
+              : null,
+        ),
+        body: Column(
+          children: [
+            if (state.skippedDuplicates > 0)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Row(
                   children: [
-                    Text(l10n.scanningProgress(state.scanned + 1, state.total)),
-                    const SizedBox(height: 4),
-                    LinearProgressIndicator(value: state.total == 0 ? null : state.scanned / state.total),
+                    Icon(Icons.info_outline, size: 18, color: Theme.of(context).colorScheme.outline),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(l10n.skippedSaved(state.skippedDuplicates))),
                   ],
                 ),
-              )
-            : null,
-      ),
-      body: state.drafts.isEmpty && !state.isScanning
-          ? Center(child: Text(l10n.noDrafts))
-          : ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: state.drafts.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final draft = state.drafts[index];
-                return _DraftTile(
-                  draft: draft,
-                  onTap: () => _edit(context, controller, index, draft),
-                  onRemove: () => controller.removeDraft(index),
-                );
-              },
+              ),
+            Expanded(
+              child: state.drafts.isEmpty && !state.isScanning
+                  ? Center(child: Text(isLibrary ? l10n.noNewSlips : l10n.noDrafts))
+                  : ListView.separated(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      itemCount: state.drafts.length,
+                      separatorBuilder: (_, _) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final draft = state.drafts[index];
+                        return _DraftTile(
+                          draft: draft,
+                          onTap: () => _edit(context, controller, index, draft),
+                          onRemove: () => controller.removeDraft(index),
+                        );
+                      },
+                    ),
             ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: FilledButton.icon(
-            icon: state.isSaving
-                ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.check),
-            label: Text(l10n.saveAll(state.saveableCount)),
-            onPressed: state.isScanning || state.isSaving || state.saveableCount == 0
-                ? null
-                : () => _saveAll(context, ref),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: FilledButton.icon(
+              icon: state.isSaving
+                  ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.check),
+              label: Text(l10n.saveAll(state.saveableCount)),
+              onPressed: state.isScanning || state.isSaving || state.saveableCount == 0
+                  ? null
+                  : () => _saveAll(context, ref),
+            ),
           ),
         ),
       ),
@@ -130,10 +158,8 @@ class _DraftTile extends StatelessWidget {
           Expanded(
             child: Text(
               tx.amountSatang > 0 ? format.baht(tx.signedSatang, signed: true) : '—',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: colors.forType(tx.type),
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(color: colors.forType(tx.type), fontWeight: FontWeight.w600),
             ),
           ),
           Text(
@@ -151,14 +177,13 @@ class _DraftTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           if (statusMessage != null)
-            Text(statusMessage, style: TextStyle(color: colors.error, fontWeight: FontWeight.w500)),
+            Text(
+              statusMessage,
+              style: TextStyle(color: colors.error, fontWeight: FontWeight.w500),
+            ),
         ],
       ),
-      trailing: IconButton(
-        tooltip: l10n.removeFromList,
-        icon: const Icon(Icons.close),
-        onPressed: onRemove,
-      ),
+      trailing: IconButton(tooltip: l10n.removeFromList, icon: const Icon(Icons.close), onPressed: onRemove),
     );
   }
 }

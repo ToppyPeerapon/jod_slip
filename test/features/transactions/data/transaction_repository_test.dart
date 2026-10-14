@@ -96,6 +96,14 @@ void main() {
     expect(await repository.findByMonth(DateTime(2026, 10)), isEmpty);
   });
 
+  test('existsMatching finds a transaction with the same amount and time', () async {
+    await repository.create(_tx(amountSatang: 290000, occurredAt: DateTime(2026, 10, 12, 10, 39)));
+
+    expect(await repository.existsMatching(amountSatang: 290000, occurredAt: DateTime(2026, 10, 12, 10, 39)), isTrue);
+    expect(await repository.existsMatching(amountSatang: 290000, occurredAt: DateTime(2026, 10, 12, 10, 40)), isFalse);
+    expect(await repository.existsMatching(amountSatang: 100, occurredAt: DateTime(2026, 10, 12, 10, 39)), isFalse);
+  });
+
   test('update without an id throws', () {
     expect(() => repository.update(_tx()), throwsArgumentError);
   });

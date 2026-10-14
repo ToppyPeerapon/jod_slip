@@ -200,4 +200,54 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get categoryOtherIncome => 'อื่นๆ';
+
+  @override
+  String get scanLibrary => 'ค้นหาสลิปจากรูปทั้งหมด';
+
+  @override
+  String get scanLibraryHint =>
+      'ให้แอปไล่ดูรูปในเครื่อง แล้วเลือกเฉพาะสลิปมาให้';
+
+  @override
+  String get libraryRangeTitle => 'ค้นหาจากรูปช่วงไหน';
+
+  @override
+  String rangeSinceLast(String date) {
+    return 'ตั้งแต่ค้นหาครั้งล่าสุด ($date)';
+  }
+
+  @override
+  String get rangeLastMonth => '1 เดือนล่าสุด';
+
+  @override
+  String get rangeLast3Months => '3 เดือนล่าสุด';
+
+  @override
+  String get rangeAll => 'รูปทั้งหมด (อาจใช้เวลานาน)';
+
+  @override
+  String searchingProgress(int current, int total, int found) {
+    return 'กำลังค้นหาสลิป $current/$total รูป · เจอ $found ใบ';
+  }
+
+  @override
+  String skippedSaved(int count) {
+    return 'ข้ามสลิปที่บันทึกไว้แล้ว $count ใบ';
+  }
+
+  @override
+  String get noNewSlips => 'ไม่เจอสลิปใหม่';
+
+  @override
+  String get photoAccessTitle => 'ยังไม่ได้รับอนุญาตให้เข้าถึงรูปภาพ';
+
+  @override
+  String get photoAccessBody =>
+      'เปิดการตั้งค่า แล้วอนุญาตให้จดสลิปเข้าถึงรูปภาพทั้งหมด เพื่อค้นหาสลิปในเครื่อง';
+
+  @override
+  String get openSettings => 'เปิดการตั้งค่า';
+
+  @override
+  String get photoAccessLimited => 'อนุญาตไว้บางรูป จะค้นหาเฉพาะรูปที่อนุญาต';
 }

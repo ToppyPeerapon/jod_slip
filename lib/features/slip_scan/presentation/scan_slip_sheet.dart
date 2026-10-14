@@ -6,11 +6,13 @@ import '../../../l10n/app_localizations.dart';
 import '../../transactions/presentation/transaction_form_screen.dart';
 import '../../transactions/providers.dart';
 import '../application/slip_import_controller.dart';
+import 'library_scan_flow.dart';
 import 'slip_review_screen.dart';
 
-enum _ScanSource { photos, camera, manual }
+enum _ScanSource { library, photos, camera, manual }
 
-/// Bottom sheet offering: pick slips from Photos, take a photo, add manually.
+/// Bottom sheet offering: search all photos for slips, pick slips from
+/// Photos, take a photo, or add manually.
 Future<void> showScanSlipSheet(BuildContext context, WidgetRef ref) async {
   final l10n = AppLocalizations.of(context);
   final source = await showModalBottomSheet<_ScanSource>(
@@ -20,6 +22,12 @@ Future<void> showScanSlipSheet(BuildContext context, WidgetRef ref) async {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          ListTile(
+            leading: const Icon(Icons.image_search),
+            title: Text(l10n.scanLibrary),
+            subtitle: Text(l10n.scanLibraryHint),
+            onTap: () => Navigator.pop(context, _ScanSource.library),
+          ),
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
             title: Text(l10n.pickFromPhotos),
@@ -43,6 +51,8 @@ Future<void> showScanSlipSheet(BuildContext context, WidgetRef ref) async {
   if (source == null || !context.mounted) return;
 
   switch (source) {
+    case _ScanSource.library:
+      await startLibraryScan(context, ref);
     case _ScanSource.manual:
       await _addManually(context, ref);
     case _ScanSource.photos || _ScanSource.camera:
@@ -60,9 +70,7 @@ Future<void> _scanImages(BuildContext context, WidgetRef ref, _ScanSource source
   } catch (error) {
     debugPrint('Image picking failed: $error');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).pickImageFailed)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).pickImageFailed)));
     }
     return;
   }
@@ -74,18 +82,15 @@ Future<void> _scanImages(BuildContext context, WidgetRef ref, _ScanSource source
 }
 
 Future<void> _addManually(BuildContext context, WidgetRef ref) async {
-  final result = await Navigator.of(context).push<TransactionFormResult>(
-    MaterialPageRoute(builder: (_) => const TransactionFormScreen()),
-  );
+  final result = await Navigator.of(context)
+      .push<TransactionFormResult>(MaterialPageRoute(builder: (_) => const TransactionFormScreen()));
   if (result is! TransactionSaved) return;
   try {
     await ref.read(transactionRepositoryProvider).create(result.transaction);
   } catch (error) {
     debugPrint('Saving manual transaction failed: $error');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).errorGeneric)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).errorGeneric)));
     }
   }
   ref.invalidate(monthTransactionsProvider);

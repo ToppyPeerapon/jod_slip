@@ -6,6 +6,7 @@ class SettingsRepository {
 
   static const _ownerNamesKey = 'owner_names';
   static const _localeKey = 'locale';
+  static const _lastLibraryScanKey = 'last_library_scan_ms';
   static const defaultLocale = 'th';
   static const supportedLocales = ['th', 'en'];
 
@@ -26,4 +27,12 @@ class SettingsRepository {
     }
     return _prefs.setString(_localeKey, code);
   }
+
+  /// When the photo library was last fully searched for slips, if ever.
+  DateTime? lastLibraryScan() {
+    final ms = _prefs.getInt(_lastLibraryScanKey);
+    return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
+  }
+
+  Future<void> saveLastLibraryScan(DateTime time) => _prefs.setInt(_lastLibraryScanKey, time.millisecondsSinceEpoch);
 }

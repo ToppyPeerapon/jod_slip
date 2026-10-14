@@ -103,7 +103,8 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
   void _save() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final counterparty = _counterparty.text.trim();
-    final base = widget.initial ??
+    final base =
+        widget.initial ??
         MoneyTransaction(
           type: _type,
           amountSatang: 0,
@@ -165,8 +166,16 @@ class _TransactionFormScreenState extends ConsumerState<TransactionFormScreen> {
           children: [
             SegmentedButton<TransactionType>(
               segments: [
-                ButtonSegment(value: TransactionType.expense, label: Text(l10n.expense), icon: const Icon(Icons.north_east)),
-                ButtonSegment(value: TransactionType.income, label: Text(l10n.income), icon: const Icon(Icons.south_west)),
+                ButtonSegment(
+                  value: TransactionType.expense,
+                  label: Text(l10n.expense),
+                  icon: const Icon(Icons.north_east),
+                ),
+                ButtonSegment(
+                  value: TransactionType.income,
+                  label: Text(l10n.income),
+                  icon: const Icon(Icons.south_west),
+                ),
               ],
               selected: {_type},
               onSelectionChanged: (selection) => _changeType(selection.first),

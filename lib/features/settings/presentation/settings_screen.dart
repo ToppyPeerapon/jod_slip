@@ -57,8 +57,7 @@ class SettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SegmentedButton<String>(
               segments: [
-                for (final MapEntry(:key, :value) in _languages.entries)
-                  ButtonSegment(value: key, label: Text(value)),
+                for (final MapEntry(:key, :value) in _languages.entries) ButtonSegment(value: key, label: Text(value)),
               ],
               selected: {locale.languageCode},
               onSelectionChanged: (selection) => ref.read(localeProvider.notifier).change(selection.first),

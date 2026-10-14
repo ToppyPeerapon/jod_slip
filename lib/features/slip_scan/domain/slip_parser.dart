@@ -81,6 +81,8 @@ class SlipParser {
 
   // ------------------------------------------------------------- reference
 
+  /// Looks on the label line, then up to two lines below it: slips often put
+  /// short text (e.g. "สแกน") between the label and the value.
   static String? _findReference(List<String> lines) {
     for (var i = 0; i < lines.length; i++) {
       final label = _referenceLabel.firstMatch(lines[i]);
@@ -88,9 +90,9 @@ class SlipParser {
 
       final sameLine = _referenceValue.firstMatch(lines[i].substring(label.end));
       if (sameLine != null) return sameLine[0];
-      if (i + 1 < lines.length) {
-        final nextLine = _referenceValue.firstMatch(lines[i + 1]);
-        if (nextLine != null) return nextLine[0];
+      for (final next in lines.skip(i + 1).take(2)) {
+        final value = _referenceValue.firstMatch(next);
+        if (value != null) return value[0];
       }
     }
     return null;

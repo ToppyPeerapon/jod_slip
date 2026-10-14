@@ -8,23 +8,51 @@ class ThaiDateParser {
   const ThaiDateParser._();
 
   static const _thaiMonths = <String, int>{
-    'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4,
-    'พฤษภาคม': 5, 'มิถุนายน': 6, 'กรกฎาคม': 7, 'สิงหาคม': 8,
-    'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12,
-    'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6,
-    'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12,
+    'มกราคม': 1,
+    'กุมภาพันธ์': 2,
+    'มีนาคม': 3,
+    'เมษายน': 4,
+    'พฤษภาคม': 5,
+    'มิถุนายน': 6,
+    'กรกฎาคม': 7,
+    'สิงหาคม': 8,
+    'กันยายน': 9,
+    'ตุลาคม': 10,
+    'พฤศจิกายน': 11,
+    'ธันวาคม': 12,
+    'ม.ค.': 1,
+    'ก.พ.': 2,
+    'มี.ค.': 3,
+    'เม.ย.': 4,
+    'พ.ค.': 5,
+    'มิ.ย.': 6,
+    'ก.ค.': 7,
+    'ส.ค.': 8,
+    'ก.ย.': 9,
+    'ต.ค.': 10,
+    'พ.ย.': 11,
+    'ธ.ค.': 12,
   };
 
   static const _englishMonths = <String, int>{
-    'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
-    'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
+    'jan': 1,
+    'feb': 2,
+    'mar': 3,
+    'apr': 4,
+    'may': 5,
+    'jun': 6,
+    'jul': 7,
+    'aug': 8,
+    'sep': 9,
+    'oct': 10,
+    'nov': 11,
+    'dec': 12,
   };
 
   /// Each Thai month abbreviation as a pattern tolerant of OCR dropping
   /// dots or inserting spaces ("ต.ค." / "ต.ค" / "ตค" / "ต. ค.").
   static final List<(RegExp, int)> _thaiMonthPatterns = [
-    for (final entry in _thaiMonths.entries)
-      (RegExp(_tolerantPattern(entry.key)), entry.value),
+    for (final entry in _thaiMonths.entries) (RegExp(_tolerantPattern(entry.key)), entry.value),
   ];
 
   static final _englishDate = RegExp(
@@ -89,13 +117,9 @@ class ThaiDateParser {
 
     final numeric = _numericDate.firstMatch(line);
     if (numeric != null) {
-      consider(_DateMatch(
-        int.parse(numeric[1]!),
-        int.parse(numeric[2]!),
-        int.parse(numeric[3]!),
-        numeric.start,
-        numeric.end,
-      ));
+      consider(
+        _DateMatch(int.parse(numeric[1]!), int.parse(numeric[2]!), int.parse(numeric[3]!), numeric.start, numeric.end),
+      );
     }
     return best;
   }

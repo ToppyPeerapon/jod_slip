@@ -14,6 +14,10 @@ abstract interface class TransactionRepository {
   Future<void> delete(int id);
 
   Future<bool> existsByReference(String reference);
+
+  /// Whether a transaction with exactly this amount and time exists; a
+  /// fallback duplicate check for slips without a readable reference.
+  Future<bool> existsMatching({required int amountSatang, required DateTime occurredAt});
 }
 
 /// Thrown when saving a slip whose reference is already stored.
@@ -71,11 +75,17 @@ class SqliteTransactionRepository implements TransactionRepository {
 
   @override
   Future<bool> existsByReference(String reference) async {
+    final rows = await _db.query(table, columns: ['id'], where: 'reference = ?', whereArgs: [reference], limit: 1);
+    return rows.isNotEmpty;
+  }
+
+  @override
+  Future<bool> existsMatching({required int amountSatang, required DateTime occurredAt}) async {
     final rows = await _db.query(
       table,
       columns: ['id'],
-      where: 'reference = ?',
-      whereArgs: [reference],
+      where: 'amount_satang = ? AND occurred_at = ?',
+      whereArgs: [amountSatang, occurredAt.millisecondsSinceEpoch],
       limit: 1,
     );
     return rows.isNotEmpty;

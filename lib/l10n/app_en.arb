@@ -60,5 +60,19 @@
   "categoryTransferIn": "Transfer in",
   "categorySales": "Sales",
   "categoryInvestment": "Investment",
-  "categoryOtherIncome": "Other"
+  "categoryOtherIncome": "Other",
+  "scanLibrary": "Find slips in all photos",
+  "scanLibraryHint": "Looks through your photos and picks out the slips",
+  "libraryRangeTitle": "Which photos to search?",
+  "rangeSinceLast": "Since last search ({date})",
+  "rangeLastMonth": "Last month",
+  "rangeLast3Months": "Last 3 months",
+  "rangeAll": "All photos (may take a while)",
+  "searchingProgress": "Searching {current}/{total} photos · found {found}",
+  "skippedSaved": "Skipped {count} slips already saved",
+  "noNewSlips": "No new slips found",
+  "photoAccessTitle": "No access to Photos",
+  "photoAccessBody": "Open Settings and allow JodSlip to access all photos to search for slips.",
+  "openSettings": "Open Settings",
+  "photoAccessLimited": "Only the photos you allowed will be searched"
 }

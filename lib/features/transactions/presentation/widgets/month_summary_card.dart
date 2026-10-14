@@ -26,10 +26,7 @@ class MonthSummaryCard extends StatelessWidget {
           children: [
             Text(l10n.balance, style: text.labelLarge),
             const SizedBox(height: 4),
-            Text(
-              format.baht(summary.balanceSatang),
-              style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w600),
-            ),
+            Text(format.baht(summary.balanceSatang), style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w600)),
             const SizedBox(height: 16),
             Row(
               children: [

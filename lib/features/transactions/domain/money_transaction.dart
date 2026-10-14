@@ -71,25 +71,26 @@ class MoneyTransaction {
       bankCode: bankCode != null ? bankCode() : this.bankCode,
       reference: reference != null ? reference() : this.reference,
       slipImage: slipImage != null ? slipImage() : this.slipImage,
-      counterpartyInstitution:
-          counterpartyInstitution != null ? counterpartyInstitution() : this.counterpartyInstitution,
+      counterpartyInstitution: counterpartyInstitution != null
+          ? counterpartyInstitution()
+          : this.counterpartyInstitution,
     );
   }
 
   Map<String, Object?> toMap() => {
-        if (id != null) 'id': id,
-        'type': type.name,
-        'amount_satang': amountSatang,
-        'category': category.key,
-        'occurred_at': occurredAt.millisecondsSinceEpoch,
-        'created_at': createdAt.millisecondsSinceEpoch,
-        'note': note,
-        'counterparty': counterparty,
-        'bank_code': bankCode,
-        'reference': reference,
-        'slip_image': slipImage,
-        'counterparty_institution': counterpartyInstitution?.key,
-      };
+    if (id != null) 'id': id,
+    'type': type.name,
+    'amount_satang': amountSatang,
+    'category': category.key,
+    'occurred_at': occurredAt.millisecondsSinceEpoch,
+    'created_at': createdAt.millisecondsSinceEpoch,
+    'note': note,
+    'counterparty': counterparty,
+    'bank_code': bankCode,
+    'reference': reference,
+    'slip_image': slipImage,
+    'counterparty_institution': counterpartyInstitution?.key,
+  };
 
   factory MoneyTransaction.fromMap(Map<String, Object?> map) {
     final type = TransactionType.values.byName(map['type']! as String);

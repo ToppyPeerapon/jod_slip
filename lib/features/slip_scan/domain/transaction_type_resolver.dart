@@ -19,10 +19,7 @@ TransactionType resolveTransactionType(SlipData slip, List<String> ownerNames) {
 
 const _minTokenLength = 3;
 
-final _titles = RegExp(
-  r'^(นางสาว|นาง|นาย|น\.ส\.|mrs\.?|mr\.?|ms\.?|miss)\s*',
-  caseSensitive: false,
-);
+final _titles = RegExp(r'^(นางสาว|นาง|นาย|น\.ส\.|mrs\.?|mr\.?|ms\.?|miss)\s*', caseSensitive: false);
 
 bool _matchesOwner(String? slipName, List<String> ownerNames) {
   if (slipName == null || slipName.trim().isEmpty) return false;

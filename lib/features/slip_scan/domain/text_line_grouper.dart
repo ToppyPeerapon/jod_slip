@@ -39,10 +39,9 @@ List<String> groupIntoLines(List<OcrBlock> blocks) {
 
   return [
     for (final row in rows)
-      ([...row]..sort((a, b) => a.left.compareTo(b.left)))
-          .map((b) => b.text.trim())
-          .where((t) => t.isNotEmpty)
-          .join('  '),
+      ([
+        ...row,
+      ]..sort((a, b) => a.left.compareTo(b.left))).map((b) => b.text.trim()).where((t) => t.isNotEmpty).join('  '),
   ].where((line) => line.isNotEmpty).toList(growable: false);
 }
 

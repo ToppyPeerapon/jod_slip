@@ -463,6 +463,90 @@ abstract class AppLocalizations {
   /// In th, this message translates to:
   /// **'อื่นๆ'**
   String get categoryOtherIncome;
+
+  /// No description provided for @scanLibrary.
+  ///
+  /// In th, this message translates to:
+  /// **'ค้นหาสลิปจากรูปทั้งหมด'**
+  String get scanLibrary;
+
+  /// No description provided for @scanLibraryHint.
+  ///
+  /// In th, this message translates to:
+  /// **'ให้แอปไล่ดูรูปในเครื่อง แล้วเลือกเฉพาะสลิปมาให้'**
+  String get scanLibraryHint;
+
+  /// No description provided for @libraryRangeTitle.
+  ///
+  /// In th, this message translates to:
+  /// **'ค้นหาจากรูปช่วงไหน'**
+  String get libraryRangeTitle;
+
+  /// No description provided for @rangeSinceLast.
+  ///
+  /// In th, this message translates to:
+  /// **'ตั้งแต่ค้นหาครั้งล่าสุด ({date})'**
+  String rangeSinceLast(String date);
+
+  /// No description provided for @rangeLastMonth.
+  ///
+  /// In th, this message translates to:
+  /// **'1 เดือนล่าสุด'**
+  String get rangeLastMonth;
+
+  /// No description provided for @rangeLast3Months.
+  ///
+  /// In th, this message translates to:
+  /// **'3 เดือนล่าสุด'**
+  String get rangeLast3Months;
+
+  /// No description provided for @rangeAll.
+  ///
+  /// In th, this message translates to:
+  /// **'รูปทั้งหมด (อาจใช้เวลานาน)'**
+  String get rangeAll;
+
+  /// No description provided for @searchingProgress.
+  ///
+  /// In th, this message translates to:
+  /// **'กำลังค้นหาสลิป {current}/{total} รูป · เจอ {found} ใบ'**
+  String searchingProgress(int current, int total, int found);
+
+  /// No description provided for @skippedSaved.
+  ///
+  /// In th, this message translates to:
+  /// **'ข้ามสลิปที่บันทึกไว้แล้ว {count} ใบ'**
+  String skippedSaved(int count);
+
+  /// No description provided for @noNewSlips.
+  ///
+  /// In th, this message translates to:
+  /// **'ไม่เจอสลิปใหม่'**
+  String get noNewSlips;
+
+  /// No description provided for @photoAccessTitle.
+  ///
+  /// In th, this message translates to:
+  /// **'ยังไม่ได้รับอนุญาตให้เข้าถึงรูปภาพ'**
+  String get photoAccessTitle;
+
+  /// No description provided for @photoAccessBody.
+  ///
+  /// In th, this message translates to:
+  /// **'เปิดการตั้งค่า แล้วอนุญาตให้จดสลิปเข้าถึงรูปภาพทั้งหมด เพื่อค้นหาสลิปในเครื่อง'**
+  String get photoAccessBody;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In th, this message translates to:
+  /// **'เปิดการตั้งค่า'**
+  String get openSettings;
+
+  /// No description provided for @photoAccessLimited.
+  ///
+  /// In th, this message translates to:
+  /// **'อนุญาตไว้บางรูป จะค้นหาเฉพาะรูปที่อนุญาต'**
+  String get photoAccessLimited;
 }
 
 class _AppLocalizationsDelegate

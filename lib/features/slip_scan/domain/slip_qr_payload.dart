@@ -8,10 +8,7 @@
 ///
 /// Note it does not carry the amount; that still comes from OCR.
 class SlipQrPayload {
-  const SlipQrPayload({
-    required this.sendingBankCode,
-    required this.transactionRef,
-  });
+  const SlipQrPayload({required this.sendingBankCode, required this.transactionRef});
 
   final String sendingBankCode;
   final String transactionRef;

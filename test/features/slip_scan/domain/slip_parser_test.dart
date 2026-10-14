@@ -85,6 +85,11 @@ void main() {
       expect(slip.reference, '016285103958CPP13217');
     });
 
+    test('finds the reference two lines below its label when the QR is unreadable', () {
+      final noQr = SlipParser.parse(lines: lines);
+      expect(noQr.reference, '016285103958CPP13217');
+    });
+
     test('receiver is paid via PromptPay', () {
       expect(slip.receiverInstitution, Institution.promptPay);
     });

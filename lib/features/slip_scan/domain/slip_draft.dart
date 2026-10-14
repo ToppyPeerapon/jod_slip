@@ -19,12 +19,7 @@ enum DraftStatus {
 
 /// A scanned slip waiting for the user to confirm it.
 class SlipDraft {
-  const SlipDraft({
-    required this.imagePath,
-    required this.transaction,
-    required this.status,
-    this.errorMessage,
-  });
+  const SlipDraft({required this.imagePath, required this.transaction, required this.status, this.errorMessage});
 
   /// Builds a pre-filled transaction from what the parser found.
   factory SlipDraft.fromSlip({
