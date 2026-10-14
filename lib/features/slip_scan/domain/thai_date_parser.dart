@@ -58,6 +58,14 @@ class ThaiDateParser {
     return null;
   }
 
+  /// Index of the first line containing a date, or null.
+  static int? lineIndex(List<String> lines) {
+    for (var i = 0; i < lines.length; i++) {
+      if (_findDate(lines[i]) != null) return i;
+    }
+    return null;
+  }
+
   static _DateMatch? _findDate(String line) {
     _DateMatch? best;
     void consider(_DateMatch? candidate) {

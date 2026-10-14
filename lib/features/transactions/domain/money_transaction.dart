@@ -1,3 +1,4 @@
+import '../../../core/institution/institution.dart';
 import 'transaction_category.dart';
 
 enum TransactionType { income, expense }
@@ -16,6 +17,7 @@ class MoneyTransaction {
     this.bankCode,
     this.reference,
     this.slipImage,
+    this.counterpartyInstitution,
   });
 
   final int? id;
@@ -38,6 +40,9 @@ class MoneyTransaction {
   /// File name of the saved slip image inside the app's slip directory.
   final String? slipImage;
 
+  /// The other party's bank, PromptPay or wallet; drives the list icon.
+  final Institution? counterpartyInstitution;
+
   int get signedSatang => type == TransactionType.income ? amountSatang : -amountSatang;
 
   MoneyTransaction copyWith({
@@ -52,6 +57,7 @@ class MoneyTransaction {
     String? Function()? bankCode,
     String? Function()? reference,
     String? Function()? slipImage,
+    Institution? Function()? counterpartyInstitution,
   }) {
     return MoneyTransaction(
       id: id ?? this.id,
@@ -65,6 +71,8 @@ class MoneyTransaction {
       bankCode: bankCode != null ? bankCode() : this.bankCode,
       reference: reference != null ? reference() : this.reference,
       slipImage: slipImage != null ? slipImage() : this.slipImage,
+      counterpartyInstitution:
+          counterpartyInstitution != null ? counterpartyInstitution() : this.counterpartyInstitution,
     );
   }
 
@@ -80,6 +88,7 @@ class MoneyTransaction {
         'bank_code': bankCode,
         'reference': reference,
         'slip_image': slipImage,
+        'counterparty_institution': counterpartyInstitution?.key,
       };
 
   factory MoneyTransaction.fromMap(Map<String, Object?> map) {
@@ -96,6 +105,7 @@ class MoneyTransaction {
       bankCode: map['bank_code'] as String?,
       reference: map['reference'] as String?,
       slipImage: map['slip_image'] as String?,
+      counterpartyInstitution: Institution.fromKey(map['counterparty_institution'] as String?),
     );
   }
 }

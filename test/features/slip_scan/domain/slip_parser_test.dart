@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jod_slip/core/bank/thai_bank.dart';
+import 'package:jod_slip/core/institution/institution.dart';
 import 'package:jod_slip/features/slip_scan/domain/slip_parser.dart';
 
 void main() {
@@ -39,7 +39,156 @@ void main() {
     });
 
     test('detects the bank from text', () {
-      expect(slip.bank, ThaiBank.kbank);
+      expect(slip.senderInstitution, Institution.kbank);
+    });
+
+    test('detects PromptPay as the receiving institution', () {
+      expect(slip.receiverInstitution, Institution.promptPay);
+    });
+  });
+
+  group('SlipParser – K PLUS PromptPay (logo text on the name row)', () {
+    // Real Vision output shape from a K PLUS slip; names anonymised.
+    const lines = [
+      'โอนเงินสำเร็จ',
+      'K+',
+      '12 ต.ค. 69 10:39 น.',
+      'นาย สมชาย ก',
+      'ธ.กสิกรไทย',
+      'xxx-x-x1234-X',
+      'PrompiPay  น.ส.สมหญิง ใจดีมาก',
+      'รหัสพร้อมเพย์',
+      'x-XXXX-XXxx7-91-5',
+      'จำนวน:',
+      '2,900.00 บาท',
+      'ค่าธรรมเนียม:',
+      '0.00 บาท',
+      'เลขที่รายการ:',
+      'สแกน',
+      '016285103958CPP13217  ตรวจสอบสลิป',
+    ];
+
+    final slip = SlipParser.parse(
+      lines: lines,
+      qrCodes: const ['0041000600000101030040220016285103958CPP132175102TH910401AD'],
+    );
+
+    test('finds a titled name after logo text on the same row', () {
+      expect(slip.senderName, 'นาย สมชาย ก');
+      expect(slip.receiverName, 'น.ส.สมหญิง ใจดีมาก');
+    });
+
+    test('reads amount, date, bank and QR reference', () {
+      expect(slip.amountSatang, 290000);
+      expect(slip.dateTime, DateTime(2026, 10, 12, 10, 39));
+      expect(slip.senderInstitution, Institution.kbank);
+      expect(slip.reference, '016285103958CPP13217');
+    });
+
+    test('receiver is paid via PromptPay', () {
+      expect(slip.receiverInstitution, Institution.promptPay);
+    });
+  });
+
+  group('SlipParser – Thai Credit app, English, between own accounts', () {
+    const lines = [
+      'Transaction Successful',
+      'Reference Number : OB1791776338351aca8c',
+      '12 Oct 2026 10:39',
+      'นาย สมชาย ทดสอบ',
+      'THAI CREDIT BANK',
+      'xxx-x-55034-x',
+      'นาย สมชาย ทดสอบ',
+      'KASIKORNBANK',
+      'xxx-x-03206-x',
+      'Amount :  3,000.00',
+      'Fee :  0.00',
+      'Memo',
+      'Scan to verify transaction',
+    ];
+
+    final slip = SlipParser.parse(lines: lines);
+
+    test('keeps the receiver even when it has the same name as the sender', () {
+      expect(slip.senderName, 'นาย สมชาย ทดสอบ');
+      expect(slip.receiverName, 'นาย สมชาย ทดสอบ');
+    });
+
+    test('reads the institution of each side from its own block', () {
+      expect(slip.senderInstitution, Institution.thaiCredit);
+      expect(slip.receiverInstitution, Institution.kbank);
+    });
+
+    test('reads amount, date and reference', () {
+      expect(slip.amountSatang, 300000);
+      expect(slip.dateTime, DateTime(2026, 10, 12, 10, 39));
+      expect(slip.reference, 'OB1791776338351aca8c');
+    });
+  });
+
+  group('SlipParser – เป๋าตัง G-Wallet merchant payment (untitled names)', () {
+    const lines = [
+      'ไทยช่วยไทย พลัส 60/40',
+      'เป๋าตัง',
+      'ทำรายการสำเร็จ',
+      'รหัสอ้างอิง 86e06ef2-9d7b-413e-9cc4-7f9ed36ae77f',
+      '11 ต.ค. 2569 14:27 น.',
+      'สมชาย ท***',
+      'G-Wallet ID: **** ******* 6431',
+      'แซ่บเด้อ',
+      'อาหาร ของหวาน เครื่องดื่ม',
+      'ค่าสินค้า/บริการ  192.06 บาท',
+      'สิทธิไทยช่วยไทยพลัส  -44 บาท',
+      'จำนวนเงินที่ชำระ  148.06 บาท',
+    ];
+
+    final slip = SlipParser.parse(lines: lines);
+
+    test('finds untitled sender and merchant between the date and the amounts', () {
+      expect(slip.senderName, 'สมชาย ท***');
+      expect(slip.receiverName, 'แซ่บเด้อ');
+    });
+
+    test('uses the amount actually paid, not the price before discount', () {
+      expect(slip.amountSatang, 14806);
+    });
+
+    test('keeps a dashed UUID reference whole', () {
+      expect(slip.reference, '86e06ef2-9d7b-413e-9cc4-7f9ed36ae77f');
+    });
+
+    test('detects the เป๋าตัง wallet as the sender institution', () {
+      expect(slip.senderInstitution, Institution.paotang);
+      expect(slip.receiverInstitution, isNull);
+    });
+
+    test('reads the date', () {
+      expect(slip.dateTime, DateTime(2026, 10, 11, 14, 27));
+    });
+
+    test('ignores logo text in the real Vision output', () {
+      // Actual grouped Vision lines: the "ถุงเงิน" logo is read as "ถุง  เDU".
+      final real = SlipParser.parse(lines: const [
+        'พลัส',
+        'โซดะช่วยไหย',
+        '60/40  เป๋าตัง',
+        'ทำรายการสำเร็จ',
+        'รหัสอ้างอิง 86e06ef2-9d7b-413e-9cc4-7f9ed36ae77f',
+        '11 ต.ค. 2569 14:27 น.',
+        'สมชาย ท***',
+        'G',
+        'G-Wallet ID: **** ******* 6431',
+        'แซ่บเด้อ',
+        'ถุง  เDU  อาหาร ของหวาน เครื่องดื่ม',
+        'ค่าสินค้า/บริการ  192.06 บาท',
+        'สิทธิไทยช่วยไทยพลัส  -44 บาท',
+        'จำนวนเงินที่ชำระ  148.06 บาท',
+      ]);
+
+      expect(real.senderName, 'สมชาย ท***');
+      expect(real.receiverName, 'แซ่บเด้อ');
+      expect(real.senderInstitution, Institution.paotang);
+      expect(real.amountSatang, 14806);
     });
   });
 
@@ -78,7 +227,7 @@ void main() {
     });
 
     test('detects SCB', () {
-      expect(slip.bank, ThaiBank.scb);
+      expect(slip.senderInstitution, Institution.scb);
     });
   });
 
@@ -90,7 +239,7 @@ void main() {
       );
 
       expect(slip.reference, '014242082547BPM04988');
-      expect(slip.bank, ThaiBank.kbank);
+      expect(slip.senderInstitution, Institution.kbank);
     });
 
     test('ignores QR codes that are not slip payloads', () {

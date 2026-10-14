@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jod_slip/core/database/app_database.dart';
+import 'package:jod_slip/core/institution/institution.dart';
 import 'package:jod_slip/core/providers.dart';
 import 'package:jod_slip/features/slip_scan/application/slip_import_controller.dart';
 import 'package:jod_slip/features/slip_scan/data/slip_recognizer.dart';
@@ -23,12 +24,12 @@ class _FakeRecognizer implements SlipRecognizer {
 }
 
 const _outgoing = RecognizedSlip(
-  lines: ['12 ต.ค. 69 14:30 น.', 'นาย พีรพล ช.', 'น.ส. สมหญิง ใจดี', 'จำนวน: 1,500.00 บาท', 'เลขที่รายการ: REFOUT1234567'],
+  lines: ['12 ต.ค. 69 14:30 น.', 'นาย พีรพล ช.', 'ธ.กสิกรไทย', 'น.ส. สมหญิง ใจดี', 'รหัสพร้อมเพย์', 'จำนวน: 1,500.00 บาท', 'เลขที่รายการ: REFOUT1234567'],
   qrCodes: [],
 );
 
 const _incoming = RecognizedSlip(
-  lines: ['13 ต.ค. 69 09:00 น.', 'นาย สมชาย รักดี', 'นาย พีรพล ชื่นใจ', 'จำนวน: 200.00 บาท', 'เลขที่รายการ: REFIN12345678'],
+  lines: ['13 ต.ค. 69 09:00 น.', 'นาย สมชาย รักดี', 'ธ.ไทยพาณิชย์', 'นาย พีรพล ชื่นใจ', 'ธ.กสิกรไทย', 'จำนวน: 200.00 บาท', 'เลขที่รายการ: REFIN12345678'],
   qrCodes: [],
 );
 
@@ -79,8 +80,10 @@ void main() {
     expect(out.transaction.type, TransactionType.expense);
     expect(out.transaction.amountSatang, 150000);
     expect(out.transaction.counterparty, 'น.ส. สมหญิง ใจดี');
+    expect(out.transaction.counterpartyInstitution, Institution.promptPay);
     expect(inc.transaction.type, TransactionType.income);
     expect(inc.transaction.counterparty, 'นาย สมชาย รักดี');
+    expect(inc.transaction.counterpartyInstitution, Institution.scb);
     expect(state().saveableCount, 2);
   });
 

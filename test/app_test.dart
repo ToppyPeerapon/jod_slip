@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:jod_slip/app.dart';
 import 'package:jod_slip/core/database/app_database.dart';
+import 'package:jod_slip/core/institution/institution.dart';
+import 'package:jod_slip/core/institution/institution_avatar.dart';
 import 'package:jod_slip/core/providers.dart';
 import 'package:jod_slip/features/transactions/domain/money_transaction.dart';
 import 'package:jod_slip/features/transactions/domain/transaction_category.dart';
@@ -61,6 +63,10 @@ void main() {
     expect(find.text('อาหาร/เครื่องดื่ม'), findsOneWidget);
     expect(find.text('-฿89.00'), findsOneWidget);
     expect(find.text('เงินเดือน'), findsOneWidget);
+    // Slip transactions show the other party's institution; manual ones the category icon.
+    expect(find.byType(InstitutionAvatar), findsOneWidget);
+    expect(find.text('PromptPay'), findsOneWidget);
+    expect(find.byIcon(Icons.work), findsOneWidget);
   });
 
   testWidgets('scan sheet offers photos, camera and manual entry', (tester) async {
@@ -105,6 +111,7 @@ class SqliteTransactionRepositoryHelper {
       category: TransactionCategory.food,
       occurredAt: DateTime(now.year, now.month, 1, 12),
       createdAt: now,
+      counterpartyInstitution: Institution.promptPay,
     ));
     await repository.create(MoneyTransaction(
       type: TransactionType.income,

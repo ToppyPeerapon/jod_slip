@@ -1,5 +1,6 @@
-import '../../../core/bank/thai_bank.dart';
+import '../../../core/institution/institution.dart';
 import 'slip_data.dart';
+import 'slip_parties.dart';
 import 'slip_qr_payload.dart';
 import 'thai_date_parser.dart';
 
@@ -8,14 +9,8 @@ import 'thai_date_parser.dart';
 class SlipParser {
   const SlipParser._();
 
-  static final _amountLabel = RegExp(
-    r'(จำนวนเงิน|จำนวน|ยอดเงิน|ยอดโอน|ยอดชำระ|amount)',
-    caseSensitive: false,
-  );
-  static final _excludedAmountLine = RegExp(
-    r'(ค่าธรรมเนียม|คงเหลือ|fee|balance)',
-    caseSensitive: false,
-  );
+  static final _amountLabel = RegExp(r'(จำนวนเงิน|จำนวน|ยอดเงิน|ยอดโอน|ยอดชำระ|amount)', caseSensitive: false);
+  static final _excludedAmountLine = RegExp(r'(ค่าธรรมเนียม|คงเหลือ|fee|balance)', caseSensitive: false);
   static final _currencyHint = RegExp(r'(บาท|thb|฿)', caseSensitive: false);
   static final _money = RegExp(r'(?<![\d.,])(\d{1,3}(?:,\d{3})+|\d+)\.(\d{2})(?![\d])');
 
@@ -23,30 +18,24 @@ class SlipParser {
     r'(เลขที่รายการ|รหัสอ้างอิง|เลขที่อ้างอิง|หมายเลขอ้างอิง|รหัสรายการ|transaction\s*id|ref(?:erence)?(?:\s*no)?\.?)',
     caseSensitive: false,
   );
-  static final _referenceValue = RegExp(r'[A-Za-z0-9]{10,}');
 
-  static final _fromLabel = RegExp(r'^\s*(จาก|from)\s*:?\s*(.*)$', caseSensitive: false);
-  static final _toLabel = RegExp(r'^\s*(ไปยัง|ถึง|ไป|ผู้รับ|to)\s*:?\s*(.*)$', caseSensitive: false);
-
-  /// Name prefixes (titles and company forms). "นางสาว" must precede "นาง".
-  static final _namePrefix = RegExp(
-    r'^\s*(นางสาว|นาง|นาย|น\.ส\.|ด\.ช\.|ด\.ญ\.|mrs\.?|mr\.?|ms\.?|miss|บจก\.?|บมจ\.?|หจก\.?|บริษัท|ร้าน)',
-    caseSensitive: false,
-  );
-  static final _accountNumber = RegExp(r'[xX\d*]{3}-[xX\d*]-[xX\d*]{4,5}-[xX\d*]');
+  /// Alphanumeric, optionally dashed (e.g. UUIDs from wallet apps).
+  static final _referenceValue = RegExp(r'[A-Za-z0-9][A-Za-z0-9-]{9,}');
 
   static SlipData parse({required List<String> lines, List<String> qrCodes = const []}) {
     final cleaned = lines.map(_normaliseSpaces).where((l) => l.isNotEmpty).toList(growable: false);
     final rawText = cleaned.join('\n');
     final qr = qrCodes.map(SlipQrPayload.tryParse).whereType<SlipQrPayload>().firstOrNull;
-    final (sender, receiver) = _findParties(cleaned);
+    final parties = SlipParties.find(cleaned);
 
     return SlipData(
       amountSatang: _findAmount(cleaned),
       dateTime: ThaiDateParser.parse(cleaned),
-      senderName: sender,
-      receiverName: receiver,
-      bank: ThaiBank.fromCode(qr?.sendingBankCode) ?? ThaiBank.detect(rawText),
+      senderName: parties.senderName,
+      receiverName: parties.receiverName,
+      senderInstitution:
+          Institution.fromCode(qr?.sendingBankCode) ?? parties.senderInstitution ?? Institution.detect(rawText),
+      receiverInstitution: parties.receiverInstitution,
       reference: qr?.transactionRef ?? _findReference(cleaned),
       rawText: rawText,
     );
@@ -106,46 +95,6 @@ class SlipParser {
     }
     return null;
   }
-
-  // --------------------------------------------------------------- parties
-
-  /// Labelled slips ("จาก" / "ไปยัง") are read directly. Unlabelled slips
-  /// (e.g. K PLUS) list the sender first and receiver second, so the first
-  /// two titled names are used instead.
-  static (String?, String?) _findParties(List<String> lines) {
-    final labelledSender = _findLabelledName(lines, _fromLabel);
-    final labelledReceiver = _findLabelledName(lines, _toLabel);
-    final titled = lines.where(_namePrefix.hasMatch).map(_cleanName).toList(growable: false);
-
-    final sender = labelledSender ?? titled.firstOrNull;
-    final receiver = labelledReceiver ?? titled.where((n) => n != sender).firstOrNull;
-    return (sender, receiver);
-  }
-
-  static String? _findLabelledName(List<String> lines, RegExp label) {
-    for (var i = 0; i < lines.length; i++) {
-      final match = label.firstMatch(lines[i]);
-      if (match == null) continue;
-
-      final rest = _cleanName(match[2] ?? '');
-      if (_looksLikeName(rest)) return rest;
-      for (final candidate in lines.skip(i + 1).take(2)) {
-        final name = _cleanName(candidate);
-        if (_looksLikeName(name)) return name;
-      }
-    }
-    return null;
-  }
-
-  static bool _looksLikeName(String text) {
-    if (text.length < 2) return false;
-    if (_namePrefix.hasMatch(text)) return true;
-    final digits = text.replaceAll(RegExp(r'\D'), '').length;
-    return digits * 2 < text.length && ThaiBank.detect(text) == null;
-  }
-
-  static String _cleanName(String text) =>
-      _normaliseSpaces(text.replaceAll(_accountNumber, ''));
 
   static String _normaliseSpaces(String text) => text.replaceAll(RegExp(r'\s+'), ' ').trim();
 }

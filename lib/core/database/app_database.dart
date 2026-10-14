@@ -6,7 +6,7 @@ class AppDatabase {
   const AppDatabase._();
 
   static const fileName = 'jod_slip.db';
-  static const _version = 1;
+  static const _version = 2;
 
   /// [factory] and [path] are injectable so tests can use an in-memory
   /// FFI database.
@@ -15,7 +15,7 @@ class AppDatabase {
     final dbPath = path ?? p.join(await dbFactory.getDatabasesPath(), fileName);
     return dbFactory.openDatabase(
       dbPath,
-      options: OpenDatabaseOptions(version: _version, onCreate: _onCreate),
+      options: OpenDatabaseOptions(version: _version, onCreate: _onCreate, onUpgrade: _onUpgrade),
     );
   }
 
@@ -32,9 +32,16 @@ class AppDatabase {
         counterparty TEXT,
         bank_code TEXT,
         reference TEXT UNIQUE,
-        slip_image TEXT
+        slip_image TEXT,
+        counterparty_institution TEXT
       )
     ''');
     await db.execute('CREATE INDEX idx_transactions_occurred_at ON transactions (occurred_at)');
+  }
+
+  static Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE transactions ADD COLUMN counterparty_institution TEXT');
+    }
   }
 }

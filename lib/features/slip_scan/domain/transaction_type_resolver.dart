@@ -6,7 +6,11 @@ import 'slip_data.dart';
 ///
 /// Banks often mask names ("นาย พีรพล ช***"), so a slip name matches when it
 /// contains any meaningful word from one of the owner's names.
+///
+/// A transfer between two accounts with the same name (the user moving money
+/// into another of their own accounts) counts as income.
 TransactionType resolveTransactionType(SlipData slip, List<String> ownerNames) {
+  if (_isSamePerson(slip.senderName, slip.receiverName)) return TransactionType.income;
   if (_matchesOwner(slip.senderName, ownerNames)) return TransactionType.expense;
   if (_matchesOwner(slip.receiverName, ownerNames)) return TransactionType.income;
   // Banking apps save slips for transfers the user made, so default to expense.
@@ -33,6 +37,14 @@ bool _matchesOwner(String? slipName, List<String> ownerNames) {
         .where((t) => t.length >= _minTokenLength);
     return tokens.any(haystack.contains);
   });
+}
+
+/// Same full name once titles, spacing, dots and masking are ignored.
+bool _isSamePerson(String? a, String? b) {
+  if (a == null || b == null) return false;
+  final left = _compact(a.trim().replaceFirst(_titles, ''));
+  final right = _compact(b.trim().replaceFirst(_titles, ''));
+  return left.length >= _minTokenLength && left == right;
 }
 
 String _compact(String text) => text.toLowerCase().replaceAll(RegExp(r'[\s.*]'), '');

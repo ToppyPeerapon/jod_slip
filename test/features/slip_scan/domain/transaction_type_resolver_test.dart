@@ -16,6 +16,28 @@ void main() {
     expect(resolveTransactionType(slip, owners), TransactionType.income);
   });
 
+  group('transfer between accounts with the same name', () {
+    test('is income even when the owner is the sender', () {
+      const slip = SlipData(senderName: 'นาย พีรพล ชื่นใจ', receiverName: 'นาย พีรพล ชื่นใจ');
+      expect(resolveTransactionType(slip, owners), TransactionType.income);
+    });
+
+    test('is income without any owner names configured', () {
+      const slip = SlipData(senderName: 'นาย สมชาย ทดสอบ', receiverName: 'นาย สมชาย ทดสอบ');
+      expect(resolveTransactionType(slip, const []), TransactionType.income);
+    });
+
+    test('ignores differences in titles, spacing and masking', () {
+      const slip = SlipData(senderName: 'นาย สมชาย ท***', receiverName: 'สมชาย  ท***');
+      expect(resolveTransactionType(slip, const []), TransactionType.income);
+    });
+
+    test('different people with the same first name are not the same account', () {
+      const slip = SlipData(senderName: 'นาย สมชาย ทดสอบ', receiverName: 'นาย สมชาย ใจดี');
+      expect(resolveTransactionType(slip, const []), TransactionType.expense);
+    });
+  });
+
   test('defaults to expense when nobody matches', () {
     const slip = SlipData(senderName: 'นาย ก', receiverName: 'นาย ข');
     expect(resolveTransactionType(slip, owners), TransactionType.expense);

@@ -50,6 +50,13 @@ public class SlipOcrPlugin: NSObject, FlutterPlugin {
     let barcodeRequest = VNDetectBarcodesRequest()
     barcodeRequest.symbologies = [.qr]
 
+    #if targetEnvironment(simulator)
+      // The simulator has no Neural Engine/GPU path for Vision ("Could not
+      // create inference context"); real devices are unaffected.
+      try useCPUOnly(textRequest)
+      try useCPUOnly(barcodeRequest)
+    #endif
+
     let handler = VNImageRequestHandler(
       cgImage: cgImage, orientation: CGImagePropertyOrientation(image.imageOrientation), options: [:])
     try handler.perform([textRequest, barcodeRequest])
@@ -69,6 +76,18 @@ public class SlipOcrPlugin: NSObject, FlutterPlugin {
     let barcodes = (barcodeRequest.results ?? []).compactMap { $0.payloadStringValue }
 
     return ["blocks": blocks, "barcodes": barcodes]
+  }
+
+  private static func useCPUOnly(_ request: VNRequest) throws {
+    if #available(iOS 17.0, *) {
+      for (stage, devices) in try request.supportedComputeStageDevices {
+        if let cpu = devices.first(where: { if case .cpu = $0 { return true } else { return false } }) {
+          request.setComputeDevice(cpu, for: stage)
+        }
+      }
+    } else {
+      request.usesCPUOnly = true
+    }
   }
 
   /// Thai text recognition needs a recent iOS; fall back to English otherwise.

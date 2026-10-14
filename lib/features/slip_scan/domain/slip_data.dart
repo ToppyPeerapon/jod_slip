@@ -1,4 +1,4 @@
-import '../../../core/bank/thai_bank.dart';
+import '../../../core/institution/institution.dart';
 
 /// Structured data extracted from a transfer slip.
 ///
@@ -10,7 +10,8 @@ class SlipData {
     this.dateTime,
     this.senderName,
     this.receiverName,
-    this.bank,
+    this.senderInstitution,
+    this.receiverInstitution,
     this.reference,
     this.rawText = '',
   });
@@ -20,7 +21,12 @@ class SlipData {
   final DateTime? dateTime;
   final String? senderName;
   final String? receiverName;
-  final ThaiBank? bank;
+
+  /// Bank or wallet the money left from.
+  final Institution? senderInstitution;
+
+  /// Bank, PromptPay or wallet the money went to.
+  final Institution? receiverInstitution;
 
   /// Transaction reference, used to detect slips imported twice.
   final String? reference;

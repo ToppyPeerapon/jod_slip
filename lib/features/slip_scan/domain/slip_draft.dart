@@ -35,14 +35,16 @@ class SlipDraft {
     required DateTime now,
   }) {
     final type = resolveTransactionType(slip, ownerNames);
+    final isExpense = type == TransactionType.expense;
     final transaction = MoneyTransaction(
       type: type,
       amountSatang: slip.amountSatang ?? 0,
       category: TransactionCategory.defaultFor(type),
       occurredAt: slip.dateTime ?? now,
       createdAt: now,
-      counterparty: type == TransactionType.expense ? slip.receiverName : slip.senderName,
-      bankCode: slip.bank?.code,
+      counterparty: isExpense ? slip.receiverName : slip.senderName,
+      counterpartyInstitution: isExpense ? slip.receiverInstitution : slip.senderInstitution,
+      bankCode: slip.senderInstitution?.code,
       reference: slip.reference,
     );
     return SlipDraft(
