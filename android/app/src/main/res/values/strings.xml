@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_scan_title">ค้นหาสลิป</string>
+    <string name="widget_scan_subtitle">จากรูปทั้งหมด</string>
+    <string name="widget_scan_description">แตะเพื่อให้จดสลิปไล่ดูรูปในเครื่องแล้วเลือกเฉพาะสลิปมาให้</string>
+</resources>

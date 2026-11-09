@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_scan_title">Find slips</string>
+    <string name="widget_scan_subtitle">in all photos</string>
+    <string name="widget_scan_description">Tap to let JodSlip look through your photos and pick out the slips.</string>
+</resources>

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/formatting/thai_format.dart';
+import '../../../core/launch/launch_actions.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../slip_scan/application/slip_import_controller.dart';
@@ -25,47 +26,49 @@ class HomeScreen extends ConsumerWidget {
     final month = ref.watch(selectedMonthProvider);
     final transactions = ref.watch(monthTransactionsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.appTitle),
-        actions: [
-          IconButton(
-            tooltip: l10n.scanLibrary,
-            icon: const Icon(Icons.image_search),
-            onPressed: () => startLibraryScan(context, ref),
-          ),
-          IconButton(
-            tooltip: l10n.settings,
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () =>
-                Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showScanSlipSheet(context, ref),
-        icon: const Icon(Icons.document_scanner_outlined),
-        label: Text(l10n.scanSlip),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => ref.refresh(monthTransactionsProvider.future),
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: _MonthSwitcher(month: month, format: format),
+    return _LaunchActionHandler(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.appTitle),
+          actions: [
+            IconButton(
+              tooltip: l10n.scanLibrary,
+              icon: const Icon(Icons.image_search),
+              onPressed: () => startLibraryScan(context, ref),
             ),
-            ...switch (transactions) {
-              // Matching on `value` keeps the previous list visible while refreshing.
-              AsyncValue(:final value?) => _content(context, ref, value, format),
-              AsyncValue(:final error?) => [
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(child: Text('${l10n.errorGeneric}\n$error', textAlign: TextAlign.center)),
-                ),
-              ],
-              _ => [const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))],
-            },
+            IconButton(
+              tooltip: l10n.settings,
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () =>
+                  Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SettingsScreen())),
+            ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => showScanSlipSheet(context, ref),
+          icon: const Icon(Icons.document_scanner_outlined),
+          label: Text(l10n.scanSlip),
+        ),
+        body: RefreshIndicator(
+          onRefresh: () => ref.refresh(monthTransactionsProvider.future),
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: _MonthSwitcher(month: month, format: format),
+              ),
+              ...switch (transactions) {
+                // Matching on `value` keeps the previous list visible while refreshing.
+                AsyncValue(:final value?) => _content(context, ref, value, format),
+                AsyncValue(:final error?) => [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(child: Text('${l10n.errorGeneric}\n$error', textAlign: TextAlign.center)),
+                  ),
+                ],
+                _ => [const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))],
+              },
+            ],
+          ),
         ),
       ),
     );
@@ -126,6 +129,42 @@ class HomeScreen extends ConsumerWidget {
     }
     ref.invalidate(monthTransactionsProvider);
   }
+}
+
+/// Runs actions the app was opened for from outside, such as the home-screen
+/// widget's "find slips in all photos".
+class _LaunchActionHandler extends ConsumerStatefulWidget {
+  const _LaunchActionHandler({required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<_LaunchActionHandler> createState() => _LaunchActionHandlerState();
+}
+
+class _LaunchActionHandlerState extends ConsumerState<_LaunchActionHandler> {
+  @override
+  void initState() {
+    super.initState();
+    ref.read(launchActionSourceProvider).listen(_onAction);
+  }
+
+  void _onAction(LaunchAction action) {
+    // Wait for a frame so a cold start has finished building the home screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Something else (review screen, dialog, sheet) is open: just bring the
+      // app forward rather than interrupting it.
+      if (!mounted || !(ModalRoute.of(context)?.isCurrent ?? true)) return;
+      switch (action) {
+        case LaunchAction.scanLibrary:
+          startLibraryScan(context, ref);
+      }
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 class _MonthSwitcher extends ConsumerWidget {
