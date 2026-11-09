@@ -6,6 +6,7 @@ import '../../../core/formatting/thai_format.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../slip_scan/application/slip_import_controller.dart';
+import '../../slip_scan/presentation/library_scan_flow.dart';
 import '../../slip_scan/presentation/scan_slip_sheet.dart';
 import '../domain/money_transaction.dart';
 import '../domain/month_summary.dart';
@@ -28,6 +29,11 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
+          IconButton(
+            tooltip: l10n.scanLibrary,
+            icon: const Icon(Icons.image_search),
+            onPressed: () => startLibraryScan(context, ref),
+          ),
           IconButton(
             tooltip: l10n.settings,
             icon: const Icon(Icons.settings_outlined),
@@ -70,7 +76,13 @@ class HomeScreen extends ConsumerWidget {
       child: MonthSummaryCard(summary: MonthSummary.of(items), format: format),
     );
     if (items.isEmpty) {
-      return [summary, const SliverFillRemaining(hasScrollBody: false, child: _EmptyState())];
+      return [
+        summary,
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: _EmptyState(onScanLibrary: () => startLibraryScan(context, ref)),
+        ),
+      ];
     }
 
     final byDay = groupBy(items, (MoneyTransaction t) => DateUtils.dateOnly(t.occurredAt));
@@ -146,7 +158,9 @@ class _MonthSwitcher extends ConsumerWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+  const _EmptyState({required this.onScanLibrary});
+
+  final VoidCallback onScanLibrary;
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +176,12 @@ class _EmptyState extends StatelessWidget {
           Text(l10n.noTransactions, style: text.titleMedium),
           const SizedBox(height: 8),
           Text(l10n.noTransactionsHint, style: text.bodyMedium, textAlign: TextAlign.center),
+          const SizedBox(height: 24),
+          FilledButton.tonalIcon(
+            onPressed: onScanLibrary,
+            icon: const Icon(Icons.image_search),
+            label: Text(l10n.scanLibrary),
+          ),
         ],
       ),
     );
